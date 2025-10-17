@@ -33,7 +33,7 @@ const ADMIN_KEY="sumi2025";
 const p=new URLSearchParams(window.location.search);
 if(p.get("key")===ADMIN_KEY){document.getElementById("auth").style.display="none";document.getElementById("main").style.display="block";init();}
 async function init(){try{const res=await fetch("/api/getResponses");const data=await res.json();window.allData=data;renderTable(data);renderChart(data);}catch(e){alert("Gagal memuat data dari server.");}}
-function renderTable(d){const tb=document.querySelector("#table tbody");tb.innerHTML="";d.forEach(r=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${r.name}</td><td>${r.email||"-"}</td><td>${new Date(r.createdAt).toLocaleString()}</td>`;tb.appendChild(tr);});}
+function renderTable(d){const tb=document.querySelector("#table tbody");tb.innerHTML="";d.forEach(r=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${new Date(r.createdAt).toLocaleString()}</td>`;tb.appendChild(tr);});}
 function renderChart(d){const ctx=document.getElementById("chart").getContext("2d");const counts={agree:0,undecided:0,disagree:0};d.forEach(r=>r.answers.forEach(a=>counts[a]=(counts[a]||0)+1));new Chart(ctx,{type:"pie",data:{labels:["Agree","Undecided","Disagree"],datasets:[{data:[counts.agree,counts.undecided,counts.disagree],backgroundColor:["#36a2eb","#ffcd56","#ff6384"]}]}});}
 </script>
 </body>
