@@ -103,38 +103,21 @@ STATEMENTS.forEach((s,i)=>{
   container.appendChild(div);
 });
 
-document.getElementById("submitBtn").addEventListener("click", async ()=>{
-  const answers = [];
-  for(let i=0;i<STATEMENTS.length;i++){
-    const r = document.querySelector(`input[name="q${i}"]:checked`);
-    answers.push(r ? r.value : "undecided");
-  }
-
-  const bestAspect = document.getElementById("bestAspect").value.trim();
-  const improve = document.getElementById("improve").value.trim();
-
-  const data = {
-    id: "r_"+Date.now(),
-    name, email,
-    createdAt: new Date().toISOString(),
-    answers, bestAspect, improve
-  };
-
-  try {
-    const res = await fetch("/api/save", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
-    });
-    if(res.ok){
-      document.getElementById("status").textContent = "Terima kasih, jawaban Anda telah disimpan!";
-      document.querySelector(".container").reset;
-    } else {
-      document.getElementById("status").textContent = "Terjadi kesalahan saat menyimpan.";
-    }
-  } catch(err){
-    document.getElementById("status").textContent = "Koneksi ke server gagal.";
-  }
+// event tombol submit
+document.getElementById("submitBtn").addEventListener("click",async()=>{
+const answers=[];
+for(let i=0;i<STATEMENTS.length;i++){
+const r=document.querySelector(`input[name='q${i}']:checked`);
+answers.push(r ? r.value : "undecided");
+}
+const bestAspect=document.getElementById("bestAspect").value.trim();
+const improve=document.getElementById("improve").value.trim();
+const data={id:"r_"+Date.now(),createdAt:new Date().toISOString(),answers,bestAspect,improve};
+try{
+const res=await fetch("/api/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+if(res.ok){document.getElementById("status").textContent="Terima kasih, jawaban Anda telah disimpan!";}
+else{document.getElementById("status").textContent="Terjadi kesalahan saat menyimpan.";}
+}catch(e){document.getElementById("status").textContent="Koneksi ke server gagal.";}
 });
 </script>
 </body>
