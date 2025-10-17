@@ -21,13 +21,6 @@ input,textarea{width:100%;padding:8px;margin-top:5px;border:1px solid #ddd;borde
   <h1>SUMI 4.0 — Software Usability Measurement Inventory</h1>
   <p class="muted">Silakan isi survei berikut. Tidak perlu login atau registrasi.</p>
 
-  <div>
-    <label>Nama (wajib)</label>
-    <input id="name" type="text" required>
-    <label>Email (opsional)</label>
-    <input id="email" type="email">
-  </div>
-
   <div id="questions"></div>
 
   <div style="margin-top:12px">
@@ -111,10 +104,6 @@ STATEMENTS.forEach((s,i)=>{
 });
 
 document.getElementById("submitBtn").addEventListener("click", async ()=>{
-  const name = document.getElementById("name").value.trim();
-  if(!name){ alert("Nama wajib diisi."); return; }
-
-  const email = document.getElementById("email").value.trim();
   const answers = [];
   for(let i=0;i<STATEMENTS.length;i++){
     const r = document.querySelector(`input[name="q${i}"]:checked`);
