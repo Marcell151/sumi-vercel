@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>SUMI — Survey Form</title>
+<title>SUMI 4.0 — Survey Form</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 body{font-family:Inter,system-ui,Segoe UI;background:#f6f8fb;margin:0;padding:0;}
@@ -18,22 +18,18 @@ textarea{width:100%;padding:8px;margin-top:5px;border:1px solid #ddd;border-radi
 </head>
 <body>
 <div class="container">
-  <h1>SUMI</h1>
+  <h1>SUMI 4.0 — Software Usability Measurement Inventory</h1>
   <p class="muted">Silakan isi survei berikut. Tidak perlu login atau data pribadi.</p>
-
   <div id="questions"></div>
-
   <div style="margin-top:12px">
     <label>What do you think is the best aspect of this software, and why?</label>
     <textarea id="bestAspect" rows="3"></textarea>
     <label>What do you think needs most improvement, and why?</label>
     <textarea id="improve" rows="3"></textarea>
   </div>
-
   <button id="submitBtn">Send / Submit</button>
   <p id="status" class="muted" style="margin-top:12px"></p>
 </div>
-
 <script>
 const STATEMENTS=[
 "This software responds too slowly to inputs.","I would recommend this software to my colleagues.",
@@ -62,51 +58,21 @@ const STATEMENTS=[
 "This software is really very awkward.","It is easy to see at a glance what the options are at each stage.",
 "Getting data files in and out of the system is not easy.","I have to look for assistance most times when I use this software."
 ];
-
-// render pertanyaan
-const container = document.getElementById("questions");
-STATEMENTS.forEach((s,i)=>{
-  const d=document.createElement("div");
-  d.className="question";
-  d.innerHTML=`
-    <strong>${i+1}. ${s}</strong><br>
-    <label><input type='radio' name='q${i}' value='agree'> Agree</label>
-    <label><input type='radio' name='q${i}' value='undecided'> Undecided</label>
-    <label><input type='radio' name='q${i}' value='disagree'> Disagree</label>
-  `;
-  container.appendChild(d);
-});
-
-document.getElementById("submitBtn").addEventListener("click", async ()=>{
-  const answers=[];
-  for(let i=0;i<STATEMENTS.length;i++){
-    const r=document.querySelector(`input[name='q${i}']:checked`);
-    answers.push(r?r.value:"undecided");
-  }
-  const bestAspect=document.getElementById("bestAspect").value.trim();
-  const improve=document.getElementById("improve").value.trim();
-  const data={
-    id:"r_"+Date.now(),
-    createdAt:new Date().toISOString(),
-    answers,
-    bestAspect,
-    improve
-  };
-
-  try{
-    const res=await fetch("/api/save",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(data)
-    });
-    if(res.ok){
-      document.getElementById("status").textContent="Terima kasih, jawaban Anda telah disimpan!";
-    } else {
-      document.getElementById("status").textContent="Terjadi kesalahan saat menyimpan.";
-    }
-  }catch(e){
-    document.getElementById("status").textContent="Koneksi ke server gagal.";
-  }
+const container=document.getElementById("questions");
+STATEMENTS.forEach((s,i)=>{const d=document.createElement("div");d.className="question";d.innerHTML=`<strong>${i+1}. ${s}</strong><br>
+<label><input type='radio' name='q${i}' value='agree'> Agree</label>
+<label><input type='radio' name='q${i}' value='undecided'> Undecided</label>
+<label><input type='radio' name='q${i}' value='disagree'> Disagree</label>`;container.appendChild(d);});
+document.getElementById("submitBtn").addEventListener("click",async()=>{
+const answers=[];for(let i=0;i<STATEMENTS.length;i++){const r=document.querySelector(`input[name='q${i}']:checked`);answers.push(r?r.value:"undecided");}
+const bestAspect=document.getElementById("bestAspect").value.trim();
+const improve=document.getElementById("improve").value.trim();
+const data={id:"r_"+Date.now(),createdAt:new Date().toISOString(),answers,bestAspect,improve};
+try{
+  const res=await fetch("/api/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+  if(res.ok){document.getElementById("status").textContent="Terima kasih, jawaban Anda telah disimpan!";}
+  else{document.getElementById("status").textContent="Terjadi kesalahan saat menyimpan.";}
+}catch(e){document.getElementById("status").textContent="Koneksi ke server gagal.";}
 });
 </script>
 </body>
