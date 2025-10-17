@@ -18,23 +18,18 @@ textarea{width:100%;padding:8px;margin-top:5px;border:1px solid #ddd;border-radi
 </head>
 <body>
 <div class="container">
-  <h1>SUMI 4.0 — Software Usability Measurement Inventory</h1>
-  <p class="muted">Silakan isi survei berikut. Tidak perlu login atau data pribadi.</p>
-
-  <div id="questions"></div>
-
-  <div style="margin-top:12px">
-    <label>What do you think is the best aspect of this software, and why?</label>
-    <textarea id="bestAspect" rows="3"></textarea>
-
-    <label>What do you think needs most improvement, and why?</label>
-    <textarea id="improve" rows="3"></textarea>
-  </div>
-
-  <button id="submitBtn">Send / Submit</button>
-  <p id="status" class="muted" style="margin-top:12px"></p>
+<h1>SUMI 4.0 — Software Usability Measurement Inventory</h1>
+<p class="muted">Silakan isi survei berikut. Tidak perlu login atau data pribadi.</p>
+<div id="questions"></div>
+<div style="margin-top:12px">
+<label>What do you think is the best aspect of this software, and why?</label>
+<textarea id="bestAspect" rows="3"></textarea>
+<label>What do you think needs most improvement, and why?</label>
+<textarea id="improve" rows="3"></textarea>
 </div>
-
+<button id="submitBtn">Send / Submit</button>
+<p id="status" class="muted" style="margin-top:12px"></p>
+</div>
 <script>
 const STATEMENTS=[
 "This software responds too slowly to inputs.","I would recommend this software to my colleagues.",
@@ -66,15 +61,10 @@ const STATEMENTS=[
 
 // tampilkan pertanyaan
 const container=document.getElementById("questions");
-STATEMENTS.forEach((s,i)=>{
-  const d=document.createElement("div");
-  d.className="question";
-  d.innerHTML=`<strong>${i+1}. ${s}</strong><br>
-    <label><input type='radio' name='q${i}' value='agree'> Agree</label>
-    <label><input type='radio' name='q${i}' value='undecided'> Undecided</label>
-    <label><input type='radio' name='q${i}' value='disagree'> Disagree</label>`;
-  container.appendChild(d);
-});
+STATEMENTS.forEach((s,i)=>{const d=document.createElement("div");d.className="question";d.innerHTML=`<strong>${i+1}. ${s}</strong><br>
+<label><input type='radio' name='q${i}' value='agree'> Agree</label>
+<label><input type='radio' name='q${i}' value='undecided'> Undecided</label>
+<label><input type='radio' name='q${i}' value='disagree'> Disagree</label>`;container.appendChild(d);});
 
 // event tombol submit
 document.getElementById("submitBtn").addEventListener("click",async()=>{
