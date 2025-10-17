@@ -20,21 +20,163 @@ select{padding:6px;border-radius:6px;}
 <div class="container">
   <h1>Admin Dashboard — SUMI 4.0</h1>
   <p class="muted">Private dashboard — akses dengan URL berisi kunci admin.</p>
-  <div id="auth"><p>Gunakan URL dengan format: <code>?key=sumi2025</code></p></div>
+
+  <div id="auth">
+    <p>Masukkan URL dengan format: <code>?key=bbkb2025</code></p>
+  </div>
+
   <div id="main" style="display:none">
     <h3>📊 Statistik Jawaban</h3>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <select id="mode">
+        <option value="summary">Summary (All Questions)</option>
+        <option value="perQ">Per Question</option>
+      </select>
+      <select id="qSelect" style="display:none"></select>
+    </div>
     <canvas id="chart" style="max-height:350px;margin-top:15px;"></canvas>
+
     <h3 style="margin-top:20px">🧾 Daftar Responden</h3>
-    <table id="table"><thead><tr><th>Tanggal</th></tr></thead><tbody></tbody></table>
+    <table id="table">
+      <thead><tr><th>Nama</th><th>Email</th><th>Tanggal</th></tr></thead>
+      <tbody></tbody>
+    </table>
   </div>
 </div>
+
 <script>
-const ADMIN_KEY="sumi2025";
-const p=new URLSearchParams(window.location.search);
-if(p.get("key")===ADMIN_KEY){document.getElementById("auth").style.display="none";document.getElementById("main").style.display="block";init();}
-async function init(){try{const res=await fetch("/api/getResponses");const data=await res.json();window.allData=data;renderTable(data);renderChart(data);}catch(e){alert("Gagal memuat data dari server.");}}
-function renderTable(d){const tb=document.querySelector("#table tbody");tb.innerHTML="";d.forEach(r=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${new Date(r.createdAt).toLocaleString()}</td>`;tb.appendChild(tr);});}
-function renderChart(d){const ctx=document.getElementById("chart").getContext("2d");const counts={agree:0,undecided:0,disagree:0};d.forEach(r=>r.answers.forEach(a=>counts[a]=(counts[a]||0)+1));new Chart(ctx,{type:"pie",data:{labels:["Agree","Undecided","Disagree"],datasets:[{data:[counts.agree,counts.undecided,counts.disagree],backgroundColor:["#36a2eb","#ffcd56","#ff6384"]}]}});}
+const ADMIN_KEY = "bbkb2025"; // ubah sesuai kebutuhan
+const urlParams = new URLSearchParams(window.location.search);
+if(urlParams.get("key") === ADMIN_KEY){
+  document.getElementById("auth").style.display="none";
+  document.getElementById("main").style.display="block";
+  init();
+}
+
+async function init(){
+  try{
+    const res = await fetch("/data/responses.json");
+    const data = await res.json();
+    window.allData = data;
+    renderTable(data);
+    setupChart(data);
+  }catch(e){
+    alert("Gagal memuat data dari server. Pastikan sudah ada respon.");
+  }
+}
+
+function renderTable(data){
+  const tbody = document.querySelector("#table tbody");
+  tbody.innerHTML="";
+  data.forEach(r=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${r.name}</td><td>${r.email||"-"}</td><td>${new Date(r.createdAt).toLocaleString()}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function setupChart(data){
+  const questions = [
+    "This software responds too slowly to inputs.",
+    "I would recommend this software to my colleagues.",
+    "The instructions and prompts are helpful.",
+    "This software has at some time stopped unexpectedly.",
+    "Learning to operate this software initially is full of problems.",
+    "I sometimes don't know what to do next with this software.",
+    "I enjoy the time I spend using this software.",
+    "I find that the help information given by this software is not very useful.",
+    "If this software stops it is not easy to restart it.",
+    "It takes too long to learn the software functions.",
+    "I sometimes wonder if I am using the right function.",
+    "Working with this software is satisfying.",
+    "The way that system information is presented is clear and understandable.",
+    "I feel safer if I use only a few familiar functions.",
+    "The software documentation is very informative.",
+    "This software seems to disrupt the way I normally like to arrange my work.",
+    "Working with this software is mentally stimulating.",
+    "There is never enough information on the screen when it's needed.",
+    "I feel in command of this software when I am using it.",
+    "I prefer to stick to the functions that I know best.",
+    "I think this software is inconsistent.",
+    "I would not like to use this software every day.",
+    "I can understand and act on the information provided by this software.",
+    "This software is awkward when I want to do something which is not standard.",
+    "There is too much to read before you can use the software.",
+    "Tasks can be performed in a straight forward manner using this software.",
+    "Using this software is frustrating.",
+    "The software has helped me overcome any problems I have had in using it.",
+    "The speed of this software is fast enough.",
+    "I keep having to go back to look at the guides.",
+    "It is obvious that user needs have been fully taken into consideration.",
+    "There have been times in using this software when I have felt quite tense.",
+    "The organisation of the menus seems quite logical.",
+    "The software allows the user to be economic of keystrokes.",
+    "Learning how to use new functions is difficult.",
+    "There are too many steps required to get something to work.",
+    "I think this software has sometimes given me a headache.",
+    "Error messages are not adequate.",
+    "It is easy to make the software do exactly what you want.",
+    "I will never learn to use all that is offered in this software.",
+    "The software hasn't always done what I was expecting.",
+    "The software presents itself in a very attractive way.",
+    "Either the amount or quality of the help information varies across the system.",
+    "It is relatively easy to move from one part of a task to another.",
+    "It is easy to forget how to do things with this software.",
+    "This software occasionally behaves in a way which can't be understood.",
+    "This software is really very awkward.",
+    "It is easy to see at a glance what the options are at each stage.",
+    "Getting data files in and out of the system is not easy.",
+    "I have to look for assistance most times when I use this software."
+  ];
+  const qSel=document.getElementById("qSelect");
+  questions.forEach((q,i)=>{
+    const opt=document.createElement("option");
+    opt.value=i; opt.textContent=`${i+1}. ${q}`;
+    qSel.appendChild(opt);
+  });
+
+  const mode=document.getElementById("mode");
+  mode.addEventListener("change",()=>{
+    qSel.style.display = (mode.value==="perQ")?"":"none";
+    updateChart();
+  });
+  qSel.addEventListener("change",updateChart);
+  window.chartCtx=document.getElementById("chart").getContext("2d");
+  updateChart();
+}
+
+function updateChart(){
+  const mode=document.getElementById("mode").value;
+  const data=window.allData;
+  if(window.mainChart){window.mainChart.destroy();}
+
+  if(mode==="summary"){
+    const count={agree:0,undecided:0,disagree:0};
+    data.forEach(r=>r.answers.forEach(a=>count[a]=(count[a]||0)+1));
+    window.mainChart=new Chart(window.chartCtx,{
+      type:"pie",
+      data:{
+        labels:["Agree","Undecided","Disagree"],
+        datasets:[{data:[count.agree,count.undecided,count.disagree]}]
+      }
+    });
+  } else {
+    const idx=parseInt(document.getElementById("qSelect").value||0);
+    const c={agree:0,undecided:0,disagree:0};
+    data.forEach(r=>{
+      const ans=r.answers[idx];
+      c[ans]=(c[ans]||0)+1;
+    });
+    window.mainChart=new Chart(window.chartCtx,{
+      type:"bar",
+      data:{
+        labels:["Agree","Undecided","Disagree"],
+        datasets:[{label:"Responses",data:[c.agree,c.undecided,c.disagree]}]
+      },
+      options:{scales:{y:{beginAtZero:true,ticks:{precision:0}}}}
+    });
+  }
+}
 </script>
 </body>
 </html>
