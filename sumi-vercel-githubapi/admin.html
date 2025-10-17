@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Admin Dashboard — SUMI 4.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+body{font-family:Inter,system-ui;background:#f4f6f8;margin:0;padding:0;}
+.container{max-width:1000px;margin:30px auto;background:#fff;padding:20px;border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+h1{font-size:22px;margin-bottom:10px;}
+.muted{color:#666;font-size:13px;}
+table{width:100%;border-collapse:collapse;margin-top:15px;}
+th,td{border-bottom:1px solid #eee;padding:8px;text-align:left;font-size:13px;}
+select{padding:6px;border-radius:6px;}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Admin Dashboard — SUMI 4.0</h1>
+  <p class="muted">Private dashboard — akses dengan URL berisi kunci admin.</p>
+  <div id="auth"><p>Gunakan URL dengan format: <code>?key=sumi2025</code></p></div>
+  <div id="main" style="display:none">
+    <h3>📊 Statistik Jawaban</h3>
+    <canvas id="chart" style="max-height:350px;margin-top:15px;"></canvas>
+    <h3 style="margin-top:20px">🧾 Daftar Responden</h3>
+    <table id="table"><thead><tr><th>Nama</th><th>Email</th><th>Tanggal</th></tr></thead><tbody></tbody></table>
+  </div>
+</div>
+<script>
+const ADMIN_KEY="sumi2025";
+const p=new URLSearchParams(window.location.search);
+if(p.get("key")===ADMIN_KEY){document.getElementById("auth").style.display="none";document.getElementById("main").style.display="block";init();}
+async function init(){try{const res=await fetch("/api/getResponses");const data=await res.json();window.allData=data;renderTable(data);renderChart(data);}catch(e){alert("Gagal memuat data dari server.");}}
+function renderTable(d){const tb=document.querySelector("#table tbody");tb.innerHTML="";d.forEach(r=>{const tr=document.createElement("tr");tr.innerHTML=`<td>${r.name}</td><td>${r.email||"-"}</td><td>${new Date(r.createdAt).toLocaleString()}</td>`;tb.appendChild(tr);});}
+function renderChart(d){const ctx=document.getElementById("chart").getContext("2d");const counts={agree:0,undecided:0,disagree:0};d.forEach(r=>r.answers.forEach(a=>counts[a]=(counts[a]||0)+1));new Chart(ctx,{type:"pie",data:{labels:["Agree","Undecided","Disagree"],datasets:[{data:[counts.agree,counts.undecided,counts.disagree],backgroundColor:["#36a2eb","#ffcd56","#ff6384"]}]}});}
+</script>
+</body>
+</html>
